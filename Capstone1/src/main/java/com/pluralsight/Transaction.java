@@ -1,0 +1,33 @@
+package com.pluralsight;
+
+public class Transaction {
+    private String date;
+    private String time;
+    private String description;
+    private String vendor;
+    private String amount;
+
+    public Transaction(String date, String time, String description, String vendor, String amount) {
+        this.date = date;
+        this.time = time;
+        this.description = description;
+        this.vendor = vendor;
+        this.amount = amount;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public String getVendor() {
+        return vendor;
+    }
+
+    public String getAmount() {
+        return amount;
+    }
+}
