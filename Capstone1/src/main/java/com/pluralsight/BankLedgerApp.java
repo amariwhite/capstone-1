@@ -4,34 +4,36 @@ import java.util.Scanner;
 
 public class BankLedgerApp {
     public static void main(String[] args) {
-        LedgerMenu ledgerMenu = new LedgerMenu();
-        Scanner scanner = new Scanner(System.in);
+                Scanner scanner = new Scanner(System.in);
+                boolean running = true;
 
-        while (true){
-            System.out.println("\n--- Bank Ledger App ---");
-            System.out.println("D Add Deposit");
-            System.out.println("P Make Payment (Debit)");
-            System.out.println("L Ledger");
-            System.out.println("X Exit");
+                while (running) {
+                    System.out.println("\n--- Bank Ledger App ---");
+                    System.out.println("D) Add Deposit");
+                    System.out.println("P) Make Payment (Debit)");
+                    System.out.println("L) Ledger");
+                    System.out.println("X) Exit");
+                    System.out.print("Enter option: ");
 
-            String choice = scanner.nextLine();
-            switch (choice){
-                case "D":
-                    ledgerMenu.addDeposits();
-                    break;
-                case "P":
-                    ledgerMenu.makePayment();
-                    break;
-                case "L":
-                    ledgerMenu.displayLedger();
-                    break;
-                case "X":
-                    System.out.println("Exiting Bank Ledger App, Bye!");
-                    return;
-                default:
-                    System.out.println("Invalid Selection, Try Again.");
+                    String choice = scanner.nextLine().trim().toUpperCase();
+                    switch (choice) {
+                        case "D":
+                            Transactions.addTransaction(true);
+                            break;
+                        case "P":
+                            Transactions.addTransaction(false);
+                            break;
+                        case "L":
+                            LedgerMenu.displayLedgerMenu();
+                            break;
+                        case "X":
+                            System.out.println("Goodbye!");
+                            running = false;
+                            break;
+                        default:
+                            System.out.println("Invalid choice. Try again.");
+                    }
+                }
             }
-        }
 
-    }
 }

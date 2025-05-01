@@ -1,212 +1,97 @@
+
 package com.pluralsight;
 
-import java.io.*;
-import java.rmi.registry.LocateRegistry;
-import java.security.cert.CertPath;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 public class LedgerMenu {
-    private static String transactionsFile = "src/data/Transactions.csv";
-    private Scanner scanner;
+    public static void displayLedgerMenu() {
+        Scanner scanner = new Scanner(System.in);
+        boolean running = true;
 
-public LedgerMenu(){
-    scanner = new Scanner(System.in);
-}
-public void addDeposit(){
-    System.out.println("\n--- Add Deposit ---");
-    LocalDate date = getCurrentDate();
+        while (running) {
+            System.out.println("\n--- Ledger Menu ---");
+            System.out.println("A) All Transactions");
+            System.out.println("D) Deposits");
+            System.out.println("P) Payments");
+            System.out.println("R) Reports");
+            System.out.println("H) Home");
+            System.out.print("Enter option: ");
 
-    System.out.println("Enter Description: ");
-    String description = scanner.nextLine();
-
-    System.out.println("Enter Deposit Amount: ");
-    double amount = scanner.nextDouble();
-
-    System.out.println("Enter Vendor Name: ");
-    String vendor = scanner.nextLine();
-
-    Tranaction deposit = new Tranaction(date, description, amount, vendor);
-    saveTransaction(deposit);
-    System.out.println("Deposit added Complete!");
-}
-public void makePayment(){
-    System.out.println("\n--- Make Payment ---");
-    LocalDate date = getCurrentDate();
-
-    System.out.println("Enter Payment Description: ");
-    String description = scanner.nextLine();
-
-    System.out.println("Enter Payment Amount: ");
-    double amount = scanner.nextDouble();
-    scanner.nextLine();
-
-    System.out.println("Enter Vendor Name: ");
-    String vendor = scanner.nextLine();
-
-    Tranaction payment = new Tranaction(date,description,amount,vendor);
-    saveTransaction(payment);
-    System.out.println("Payment Recorded Complete!");
-}
-private LocalDate getCurrentDate(){
-    return LocalDate.now();
-}
-private void saveTransaction(Tranaction tranaction){
-    try (BufferedWriter writer = new BufferedWriter(new FileWriter(transactionsFile, true))){
-        writer.write(tranaction.toString());
-        writer.newLine();
-    }catch (IOException e){
-        System.out.println("Error Saving Transaction: " + e.getMessage());
-    }
-}
-public void displayLedger(){
-    System.out.println("\n--- Ledger Menu ---");
-    System.out.println("A All Entries");
-    System.out.println("D Deposits");
-    System.out.println("P Payments");
-    System.out.println("R Reports");
-    System.out.println("H Home");
-
-    String choice = scanner.nextLine();
-    switch (choice){
-        case "A":
-            displayTransactions(getAllTransactions());
-            break;
-        case "D":
-            displayTransactions(getDeposits());
-            break;
-        case "P":
-            displayTransactions(getPayments());
-            break;
-        case "R":
-            runReports();
-            break;
-        case "H":
-            return;
-
-    }
-}
-
-    private ArrayList<Tranaction> getAllTransactions(){
-        return readTransactions();
-    }
-
-    private ArrayList<Tranaction> getDeposits(){
-        return readTransactions().stream()
-                .filter(t -> t.getAmount()< 0)
-                .collect(Collectors.toCollection(ArrayList::new));
-    }
-
-    private ArrayList<Tranaction> getPayments(){
-        return readTransactions().stream()
-                .filter(t -> t.getAmount() > 0)
-                .collect(Collectors.toCollection(ArrayList::new));
-    }
-
-    private ArrayList<Tranaction> readTransactions(){
-        ArrayList<Tranaction> tranactions = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(transactionsFile))){
-            String line;
-            while ((line =reader.readLine()) != null){
-                String[] parts = line.split("\\|");
-                LocalDate date = LocalDate.parse(parts[0]);
-                String description = parts[1];
-                double amount = Double.parseDouble(parts[2]);
-                String vendor = parts[3];
-                tranactions.add(new Tranaction(date,description,amount,vendor));
+            String choice = scanner.nextLine().trim().toUpperCase();
+            switch (choice) {
+                case "A":
+                    Transactions.displayTransactions(Transactions.readAllTransactions());
+                    break;
+                case "D":
+                    Transactions.displayTransactions(Transactions.filterTransactionsByAmount(true));
+                    break;
+                case "P":
+                    Transactions.displayTransactions(Transactions.filterTransactionsByAmount(false));
+                    break;
+                case "R":
+                    runReports();
+                    break;
+                case "H":
+                    running = false;
+                    break;
+                default:
+                    System.out.println("Invalid choice.");
             }
-        }catch (IOException e){
-            System.out.println("Error Reading Transactions: " + e.getMessage());
-        }
-        return tranactions;
-    }
-
-    private void displayTransactions(ArrayList<Tranaction> tranactions){
-        tranactions.sort((t1, t2) -> t2.getDate().compareTo(t1.getDate()));
-        for (Tranaction t : tranactions) {
-            System.out.printf("%s | %s | $%.2f | %s%n", t.getDate(), t.getDescription(), t.getAmount(), t.getVendor());
-
         }
     }
 
-    private void runReports(){
-        while (true){
+    public static void runReports() {
+        Scanner scanner = new Scanner(System.in);
+        boolean running = true;
+
+        while (running) {
             System.out.println("\n--- Reports ---");
-            System.out.println("1 Month To Date");
-            System.out.println("2 Previous Month");
-            System.out.println("3 Year To Date");
-            System.out.println("4 Previous Year");
-            System.out.println("5 Search By Vendor");
-            System.out.println("0 Back");
+            System.out.println("1) Month To Date");
+            System.out.println("2) Previous Month");
+            System.out.println("3) Year To Date");
+            System.out.println("4) Previous Year");
+            System.out.println("5) Search by Vendor");
+            System.out.println("0) Back");
+            System.out.print("Enter option: ");
 
             String choice = scanner.nextLine();
-            switch (choice){
+            switch (choice) {
                 case "1":
-                    displayMonthToDateReport();
+                    LocalDateTime startMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+                    LocalDateTime now = LocalDateTime.now();
+                    Transactions.displayTransactions(Transactions.filterByDateRange(startMonth, now));
                     break;
                 case "2":
-                    displayPreviousMonthReport();
+                    LocalDate lastMonthStart = LocalDate.now().minusMonths(1).withDayOfMonth(1);
+                    LocalDateTime lastMonthStartTime = lastMonthStart.atStartOfDay();
+                    LocalDateTime lastMonthEndTime = lastMonthStart.plusMonths(1).minusDays(1).atTime(23, 59, 59);
+                    Transactions.displayTransactions(Transactions.filterByDateRange(lastMonthStartTime, lastMonthEndTime));
                     break;
                 case "3":
-                    displayYearToDateReport();
+                    LocalDateTime startYear = LocalDate.now().withDayOfYear(1).atStartOfDay();
+                    Transactions.displayTransactions(Transactions.filterByDateRange(startYear, LocalDateTime.now()));
                     break;
                 case "4":
-                    displayPreviousYearReport();
+                    LocalDate lastYearStart = LocalDate.now().minusYears(1).withDayOfYear(1);
+                    LocalDate lastYearEnd = lastYearStart.withMonth(12).withDayOfMonth(31);
+                    Transactions.displayTransactions(Transactions.filterByDateRange(lastYearStart.atStartOfDay(), lastYearEnd.atTime(23, 59, 59)));
                     break;
                 case "5":
-                    searchByVendor();
+                    System.out.print("Enter vendor name: ");
+                    String vendor = scanner.nextLine();
+                    Transactions.displayTransactions(Transactions.filterByVendor(vendor));
                     break;
                 case "0":
-                    return;
+                    running = false;
+                    break;
+                default:
+                    System.out.println("Invalid choice.");
             }
         }
     }
-
-    private void searchByVendor(){
-        System.out.println("Enter Vendor Name: ");
-        String vendorName = scanner.nextLine();
-
-        ArrayList<Tranaction> vendorTransactions = readTransactions().stream()
-                .filter(t -> t.getVendor().equalsIgnoreCase(vendorName))
-                .collect(Collectors.toCollection(ArrayList::new));
-        displayTransactions(vendorTransactions);
-
-    }
-
-    private void displayMonthToDateReport(){
-        LocalDate now = LocalDate.now();
-        LocalDate startOfMonth = now.withDayOfMonth(1);
-
-        ArrayList<Tranaction> monthToDateTransactions = readTransactions().stream()
-                .filter(t -> !t.getDate().isBefore(startOfMonth) && !t.getDate().isAfter(now))
-                .collect(Collectors.toCollection(ArrayList::new));
-        displayTransactions(monthToDateTransactions);
-    }
-
-    private void displayPreviousMonthReport(){}
-
-    private void displayYearToDateReport(){}
-
-    private void displayPreviousYearReport(){}
-
-    public void addDeposits() {
-        System.out.println("\n--- Add Deposit ---");
-        LocalDate date = getCurrentDate();
-
-        System.out.println("Enter Description: ");
-        String description = scanner.nextLine();
-
-        System.out.println("Enter Deposit Amount: ");
-        double amount = scanner.nextDouble();
-
-        System.out.println("Enter Vendor Name: ");
-        String vendor = scanner.nextLine();
-
-        Tranaction deposit = new Tranaction(date, description, amount, vendor);
-        saveTransaction(deposit);
-        System.out.println("Deposit added Complete!");
-
-    }
 }
+
+

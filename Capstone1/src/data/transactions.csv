@@ -2,3 +2,5 @@ date|time|description|vendor|amount
 Tranaction{date=null, description='null', amount=0.0, vendor='null'}
 Tranaction{date=null, description='null', amount=0.0, vendor='null'}
 Tranaction{date=null, description='null', amount=0.0, vendor='null'}
+2025-05-01|Ipad Mini|-500.0|Apple
+2025-05-01|Cashier Check|6000.0|ABC Company Inc
